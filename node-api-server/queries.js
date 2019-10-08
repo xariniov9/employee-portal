@@ -28,6 +28,7 @@ const authorizeUser = (req, res) => {
 	pool.query(queryText, [req.body.Email], (err, result) => {
 		if (err) {
 			console.error('Error authorizing user', err.stack);
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		if (!result.rows[0]) {
 	      return res.status(400).send({'message': 'The credentials you provided is incorrect'});
@@ -79,6 +80,7 @@ const searchEmployees = (request, response) => {
     pool.query(queryText, [request.body.FirstName, request.body.LastName, request.body.Email, request.body.BeginDate, request.body.EndDate, request.body.DepartmentId, '%'+request.body.FirstName+'%', '%'+request.body.LastName+'%', '%'+request.body.Email+'%'], (err, result) => {
     	if (err) {
 			console.error('Error searching employee', err.stack)
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(result.rows);
     })
@@ -94,7 +96,7 @@ const getIssueHistoryByIssueId = (request, response) => {
 	   console.log(request.userauth);
    	pool.query(queryText, [request.body.IssueId], (error, result) => {
    		if(error) {
-   			throw error;
+			return res.status(400).send({ 'message': 'Error occured' });
    		}
 		response.status(200).json(result.rows)
    	})
@@ -133,6 +135,7 @@ const createUser = (request, response) => {
 			pool.query('COMMIT', err => {
 				if(err) {
 					console.error('Error adding user', err.stack)
+					return res.status(400).send({ 'message': 'Error occured' });
 				}
 				else {
 					response.status(200).json(result);
@@ -161,7 +164,7 @@ const createIssue = (request, response) => {
 	const queryText1 = 'INSERT INTO Issues(Title,Description,PostedBy,Priority,IsActive) VALUES($1, $2, $3, $4, true)';
 	const queryText2 = "INSERT INTO IssueHistories(IssueId,Comments,ModifiedBy,ModifiedOn,AssignedTo,Status) VALUES((SELECT currval('Issues_seq')),null,$1,now(),null,1);";
 
-	pool.query(queryText1, [request.body.Title,request.body.Description,request.body.PostedBy,request.body.Priority], (err, res) => {
+	pool.query(queryText1, [request.body.Title,request.body.Description,request.userauth.employeeId,request.body.Priority], (err, res) => {
 		if(shouldAbort(err)) return;	
 
 		pool.query(queryText2, [request.body.PostedBy], (err, res) => {
@@ -169,6 +172,7 @@ const createIssue = (request, response) => {
 			pool.query('COMMIT', err => {
 				if(err) {
 					console.error('Error adding issue', err.stack)
+					return res.status(400).send({ 'message': 'Error occured' });
 				}
 				else {
 					response.status(200).json(res.rows);
@@ -199,7 +203,7 @@ const getAllIssuesByEmployeeId = (request, response) => {
 	WHERE Position = 1;`
 	pool.query(queryText, [request.body.EmployeeId], (err, res) => {
 		if(err) {
-			throw err;
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(res.rows);
 	})	
@@ -209,7 +213,7 @@ const getAllDepartments = (request, response) => {
 	const queryText = 'SELECT * from Departments';
 	pool.query(queryText, [], (err, res) => {
 		if(err) {
-			throw err;
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(res.rows);
 	})
@@ -219,7 +223,7 @@ const getUserByEmailId = (request, response) => {
 	const queryText = 'SELECT Users.userId, Users.employeeid, Users.isAdmin FROM Users INNER JOIN Employees ON Users.employeeid = Employees.employeeid WHERE Employees.email = $1::text';
 	pool.query(queryText, [request.body.EmailId], (err, res) => {
 		if(err) {
-			throw err;
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(res.rows);
 	})
@@ -229,36 +233,43 @@ const getAllNotices = (request, response) => {
 	const queryText = 'SELECT Notices.*, Employees.FirstName, Employees.LastName from Notices INNER JOIN Employees ON Employees.EmployeeId = Notices.PostedBy WHERE IsActive = true';
 	pool.query(queryText, [], (err, res) => {
 		if(err) {
-			throw err;
+			return res.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(res.rows);		
 	})
 }
 
 const publishNotice = (request, response) => {
-	if(!request.userauth || !request.userauth.isAdmin) {
-		response.status(400).send('Not Authorized!');
+	if(!request.userauth || request.userauth.isAdmin === false) {
+		response.status(400).send({message : 'Not Authorized!'});
+		console.log("Unauthorized");
+	} else {
+		const empId = request.userauth.employeeId;
+		console.log(request.userauth);
+		const queryText = 'INSERT INTO Notices(Title, Description, PostedBy, StartDate, ExpirationDate, IsActive) VALUES ($1, $2, $3, $4, $5, true)';
+		console.log(request.body.Title+ request.body.Description + empId + request.body.StartDate + request.body.ExpirationDate);
+		pool.query(queryText, [request.body.Title, request.body.Description, empId, request.body.StartDate, request.body.ExpirationDate], (err, result) => {
+			if(err) {
+			return res.status(400).send({ 'message': 'Error occured' });
+			}
+			response.status(200).json(result.rows);		
+		})		
 	}
-	const queryText = 'INSERT INTO Notices(Title, Description, PostedBy, StartDate, ExpirationDate, IsActive) VALUES ($1, $2, $3, $4, $5, true)';
-	pool.query(queryText, [request.body.Title, request.body.Description, empId, request.body.StartDate, request.body.ExpirationDate], (err, result) => {
-		if(err) {
-			throw err;
-		}
-		response.status(200).json(result.rows);		
-	})
 }
 
 const deleteNotice = (request, response) => {
 	if(!request.userauth || !request.userauth.isAdmin) {
-		response.status(400).send('Not Authorized!');
+		response.status(400).send( {message : 'Not Authorized!'});
+		console.log("Unauthorized");
+	} else {
+		const queryText = 'UPDATE Notices SET IsActive = false WHERE NoticeId = $1';
+		pool.query(queryText, [request.body.NoticeId], (err, res) => {
+			if(err) {
+			return res.status(400).send({ 'message': 'Error occured' });
+			}
+			response.status(200).json({deleted: true});
+		})
 	}
-	const queryText = 'UPDATE Notices SET IsActive = false WHERE NoticeId = $';
-	pool.query(queryText, [request.body.NoticeId], (err, res) => {
-		if(err) {
-			throw err;
-		}
-		response.status(200).json({deleted: true});
-	})
 }
 
 module.exports = {

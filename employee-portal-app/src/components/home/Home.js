@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import SignIn from '../signIn/signIn';
 import axios from 'axios';
+import Notices from '../notices/notices';
+import CreateEmployee from '../createEmployee/CreateEmployee';
+import CreateNotice from '../notices/createNotice';
 
 class Home extends Component{
   constructor(props) {
@@ -35,7 +38,6 @@ class Home extends Component{
   	}
   }
   handleSuccessSignIn(data) {
-  	console.log(data.user);
   	this.setState({user: data.user, isAdmin: data.user.isAdmin, isAuth: true});
   }
   handleLogOut() {
@@ -54,6 +56,9 @@ class Home extends Component{
 					<div>Authenticated User</div>
 					<div>{this.state.user.firstName}</div>
 					<button onClick={this.handleLogOut}>Log Out</button>
+          <CreateEmployee/>
+          <CreateNotice/>
+          <Notices user={this.state.user}></Notices>
 				</div>
 
 			)

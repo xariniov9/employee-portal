@@ -26,19 +26,16 @@ class SignIn extends Component{
         const _this = this;
         const payload = axios.post(`http://localhost:3001/api/auth`, values)
             .then((result) => {
-          // Note: Error's "data" is in result.payload.response.data (inside "response")
-          // success's "data" is in result.payload.data
+          // Note: Error's "data" is in result.response.data (inside "response")
+          // success's "data" is in result.data
           if(_this._isMounted) {
                 this.setState({Email: "", Password: ""})
           }
           if (result.response && result.response.status !== 200) {
-            //signInUserFailure(result.payload.response.data);
+            //signInUserFailure(result.response.data);
             console.log("error in auth");
-
           } else {
-              console.log(result.data);
               sessionStorage.setItem('jwtToken', result.data.token);
-              //dispatch(signInUserSuccess(result.payload.data)); //ps: this is same as dispatching RESET_USER_FIELDS
               if(_this._isMounted) {
                   _this.props.OnSuccessSignIn(result.data); 
               }

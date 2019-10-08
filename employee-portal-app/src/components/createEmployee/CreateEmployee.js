@@ -1,0 +1,132 @@
+import React, { Component } from 'react';
+import axios from 'axios';
+
+class CreateEmployee extends Component{
+  _isMounted= false;
+  constructor(props) {
+
+    super(props);
+    this.state = {
+        Email: "",
+        Password: "",
+        FirstName: "",
+        LastName: "",
+        DateOfJoining: "",
+        IsAdmin: false,
+        DepartmentName: "",
+        validationError: "",
+
+        user: {
+
+        }
+    };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.validateFieldsAndCreateUser = this.validateFieldsAndCreateUser.bind(this);
+  }
+
+  handleChange(evt) {
+    this.setState({ [evt.target.name]: evt.target.value });
+  }
+    
+    validateFieldsAndCreateUser = (values) => {
+        const _this = this;
+        const token = sessionStorage.jwtToken;
+
+        const payload = axios.post(`http://localhost:3001/api/users`, values)
+            .then((result) => {
+          // Note: Error's "data" is in result.response.data (inside "response")
+          // success's "data" is in result.data
+          
+          this.setState({Email: "", Password: ""})
+          
+          if (result.response && result.response.status !== 200) {
+            //signInUserFailure(result.response.data);
+            console.log("error in auth");
+          } else {
+            console.log("Employee Created")
+          }
+        }).catch(err => {
+            console.log(err)
+        });
+    };
+
+  handleSubmit(event) {
+    this.validateFieldsAndCreateUser({Email: this.state.Email, Password: this.state.Password, IsAdmin: this.state.IsAdmin, DepartmentName: this.state.DepartmentName, FirstName: this.state.FirstName, LastName: this.state.LastName, DateOfJoining: this.state.DateOfJoining});
+    event.preventDefault();
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+  render() {
+		return (
+      <div className="LBmaincard">
+          <div className="LBContentCard">
+          <div className = "MainContentCardTitle">
+            <div className="titleText lbTitle">Create Employee</div>
+            <div className="lbbtnClrd lborange1">New</div>
+            <div className = "lighterText1">Fill Details</div>
+          </div>
+          <hr></hr>
+        
+            <div className = "FormCardBody">
+                <form onSubmit={this.handleSubmit}>
+                    <label>
+                    First Name : 
+                    <input type="text" name="FirstName" value={this.state.FirstName} onChange={this.handleChange}/>
+                    </label>
+
+                    <br></br>
+                    
+                    <label>
+                    Last Name : 
+                    <input type="text" name="LastName" value={this.state.LastName} onChange={this.handleChange}/>
+                    </label>
+
+                    <br></br>
+
+                    <label>
+                    Department Name : 
+                    <input type="text" name="DepartmentName" value={this.state.DepartmentName} onChange={this.handleChange}/>
+                    </label>
+
+                    <br></br>
+                    <label>
+                    Joining Date: 
+                    <input type="text" name="DateOfJoining" value={this.state.DateOfJoining} onChange={this.handleChange}/>
+                    </label>
+
+                    <br></br>
+
+                    <label>
+                    Email : 
+                    <input type="text" name="Email" value={this.state.Email} onChange={this.handleChange}/>
+                    </label>
+
+                    <br></br>
+
+                    <label>
+                    Password : 
+                    <input type="text" name="Password" value={this.state.Password} onChange={this.handleChange}/>
+                    </label>
+
+                    <label>
+                    Is Admin?
+                    <input type="checkbox" name="IsAdmin" value={this.state.IsAdmin} onChange={this.handleChange}/>
+                    </label>
+                    <input type="submit" value="Submit" />
+                </form>
+            </div>
+        
+        </div>
+        </div>
+    )
+  }
+}
+
+export default CreateEmployee;
