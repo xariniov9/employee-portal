@@ -8,32 +8,28 @@ const pool = new Pool({
   password: 'Passw0rd'
 })
 
-const Auth = {
-  /**
-   * Verify Token
-   * @param {object} req 
-   * @param {object} res 
-   * @param {object} next
-   * @returns {object|void} response object 
-   */
-  async verifyToken(req, res, next) {
-    const token = req.headers['x-access-token'];
-    if(!token) {
-      return res.status(400).send({ 'message': 'Token is not provided' });
-    }
-    try {
-      const decoded = await jwt.verify(token, "justanotherrandomsecretkey");
+const verifyToken = (req, res, next) => {
+  const token = req.headers['x-access-token'] || req.body.token;
+  
+  if(!token) {
+    return res.status(400).send({ 'message': 'Token is not provided' });
+  }
+  try {
+    jwt.verify(token, "justanotherrandomsecretkey", (error, decoded) => {
       const text = 'SELECT * FROM users WHERE userid = $1';
-      const { rows } = await pool.query(text, [decoded.userId]);
-      if(!rows[0]) {
-        return res.status(400).send({ 'message': 'The token you provided is invalid' });
-      }
-      req.userauth = { id: decoded.userId };
-      next();
-    } catch(error) {
-      return res.status(400).send(error);
-    }
+      pool.query(text, [decoded.userId], (err, result) => {
+        if(!result.rows[0]) {
+          return res.status(400).send({ 'message': 'The token you provided is invalid' });
+        }
+        req.userauth = {userId: decoded.userId, email: decoded.email, isAdmin: decoded.isAdmin, firstName: decoded.firstName, lastName: decoded.lastName, employeeId: decoded.employeeId};
+        console.log(req.userauth);
+        next();          
+      });
+    }) 
+  }catch(error) {
+    return res.status(400).send(error);
   }
 }
 
-module.exports = Auth;
+
+module.exports = {verifyToken}

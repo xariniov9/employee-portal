@@ -5,7 +5,7 @@ const pool = new Pool({
   database: 'employeeportal',
   password: 'Passw0rd'
 })
-
+const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const Helper = require('./helpers.js');
 
@@ -35,11 +35,36 @@ const authorizeUser = (req, res) => {
 	    if(!Helper.comparePassword(result.rows[0].password, req.body.Password)) {
 	      return res.status(400).send({ 'message': 'The credentials you provided is incorrect' });
 	    }
-		
-		const token = Helper.generateToken(result.rows[0].userid);
-      	return res.status(200).send({ token });
+		const user = Helper.getCleanUser(result.rows[0]);
+		console.log(result.rows[0]);
+		const token = Helper.generateToken(result.rows[0]);
+      	return res.status(200).send({user: user, token: token });
 	})
 }
+
+const authWithToken = (req, res) => {
+	const token = req.headers['x-access-token'] || req.body.token;
+	console.log(token);
+    if(!token) {
+      return res.status(400).send({ 'message': 'Token is not provided' });
+    }
+    try {
+      jwt.verify(token, "justanotherrandomsecretkey", (err, decoded) => {
+      	  const text = 'SELECT * FROM users WHERE userid = $1';
+	      console.log(decoded);
+	      pool.query(text, [decoded.userId], (err, result) => {
+	      	if(!result.rows[0]) {
+	 	       return res.status(400).send({ 'message': 'The token you provided is invalid' });  		
+	      	}
+	        return res.status(200).send({user: decoded, token: token });
+	      });
+      })
+    }
+	catch(error) {
+      return res.status(400).send(error);
+    }
+}
+
 
 const searchEmployees = (request, response) => {
 	const queryText = `SELECT * 
@@ -200,6 +225,42 @@ const getUserByEmailId = (request, response) => {
 	})
 }
 
+const getAllNotices = (request, response) => {
+	const queryText = 'SELECT Notices.*, Employees.FirstName, Employees.LastName from Notices INNER JOIN Employees ON Employees.EmployeeId = Notices.PostedBy WHERE IsActive = true';
+	pool.query(queryText, [], (err, res) => {
+		if(err) {
+			throw err;
+		}
+		response.status(200).json(res.rows);		
+	})
+}
+
+const publishNotice = (request, response) => {
+	if(!request.userauth || !request.userauth.isAdmin) {
+		response.status(400).send('Not Authorized!');
+	}
+	const queryText = 'INSERT INTO Notices(Title, Description, PostedBy, StartDate, ExpirationDate, IsActive) VALUES ($1, $2, $3, $4, $5, true)';
+	pool.query(queryText, [request.body.Title, request.body.Description, empId, request.body.StartDate, request.body.ExpirationDate], (err, result) => {
+		if(err) {
+			throw err;
+		}
+		response.status(200).json(result.rows);		
+	})
+}
+
+const deleteNotice = (request, response) => {
+	if(!request.userauth || !request.userauth.isAdmin) {
+		response.status(400).send('Not Authorized!');
+	}
+	const queryText = 'UPDATE Notices SET IsActive = false WHERE NoticeId = $';
+	pool.query(queryText, [request.body.NoticeId], (err, res) => {
+		if(err) {
+			throw err;
+		}
+		response.status(200).json({deleted: true});
+	})
+}
+
 module.exports = {
   createUser,
   authorizeUser,
@@ -208,5 +269,9 @@ module.exports = {
   getIssueHistoryByIssueId,
   getAllIssuesByEmployeeId,
   getAllDepartments,
-  getUserByEmailId
+  getUserByEmailId,
+  authWithToken,
+  publishNotice,
+  getAllNotices,
+  deleteNotice
 }

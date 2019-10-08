@@ -32,13 +32,32 @@ const Helper = {
    * @param {string} id
    * @returns {string} token
    */
-  generateToken(id) {
+  generateToken(user) {
     const token = jwt.sign({
-      userId: id
+      userId: user.userid,
+      email: user.email,
+      isAdmin: user.isadmin,
+      firstName: user.firstname,
+      lastName: user.lastname,
+      employeeId: user.employeeid,
+      department: user.department
     },
       "justanotherrandomsecretkey", { expiresIn: '7d' }
     );
     return token;
+  },
+
+  getCleanUser(user) {
+    const cleanUser = {
+      userId: user.userid,
+      email: user.email,
+      isAdmin: user.isadmin,
+      firstName: user.firstname,
+      lastName: user.lastname,
+      employeeId: user.employeeid,
+      department: user.department
+    }
+    return cleanUser;
   }
 }
 
