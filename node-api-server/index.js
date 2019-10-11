@@ -39,6 +39,8 @@ app.post('/api/getUserByEmailId', Auth.verifyToken, db.getUserByEmailId)
 app.post('/api/publishNotice', Auth.verifyAdminToken, db.publishNotice);
 app.post('/api/getAllNotices', Auth.verifyToken, db.getAllNotices);
 app.post('/api/deleteNotice', Auth.verifyAdminToken, db.deleteNotice);
+app.post('/api/updateProfile', Auth.verifyToken, db.updateProfile);
+app.post('/api/updateNotice', Auth.verifyAdminToken, db.updateNotice);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)

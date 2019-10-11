@@ -4,6 +4,8 @@ import axios from 'axios';
 import Notices from '../notices/notices';
 import CreateEmployee from '../createEmployee/CreateEmployee';
 import CreateNotice from '../notices/createNotice';
+import MyProfile from '../myProfile/myProfile';
+import SearchEmployees from '../employees/employees';
 
 class Home extends Component{
   constructor(props) {
@@ -56,8 +58,10 @@ class Home extends Component{
 					<div>Authenticated User</div>
 					<div>{this.state.user.firstName}</div>
 					<button onClick={this.handleLogOut}>Log Out</button>
-          <CreateEmployee/>
-          <CreateNotice/>
+          <SearchEmployees/>
+          <MyProfile user={this.state.user} callback={this.handleLogOut}/>
+          {this.state.user.isAdmin && <CreateEmployee/>}
+          {this.state.user.isAdmin && <CreateNotice/>}
           <Notices user={this.state.user}></Notices>
 				</div>
 

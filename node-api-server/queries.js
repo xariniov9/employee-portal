@@ -9,12 +9,9 @@ const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const Helper = require('./helpers.js');
 
-  /**
-   * Login
-   * @param {object} req 
-   * @param {object} res
-   * @returns {object} user object 
-   */
+const isEmptyOrNull = (str) => {
+	return (!str || str.length === 0 || !str.trim());
+}
 
 const authorizeUser = (req, res) => {
 	if (!req.body.Email || !req.body.Password) {
@@ -77,13 +74,46 @@ const searchEmployees = (request, response) => {
    	    ($6::int IS NOT NULL AND  DepartmentId = $6::int) OR
 	    ($4::timestamp(3) IS NOT NULL AND  DateOfJoining >= ($4::timestamp(3)) ) OR
 	    ($5::timestamp(3) IS NOT NULL AND  DateOfJoining <= ($5)::timestamp(3))`;
-    pool.query(queryText, [request.body.FirstName, request.body.LastName, request.body.Email, request.body.BeginDate, request.body.EndDate, request.body.DepartmentId, '%'+request.body.FirstName+'%', '%'+request.body.LastName+'%', '%'+request.body.Email+'%'], (err, result) => {
-    	if (err) {
-			console.error('Error searching employee', err.stack)
-			return res.status(400).send({ 'message': 'Error occured' });
-		}
-		response.status(200).json(result.rows);
-    })
+
+	const queryText1 = 'SELECT DepartmentId from Departments WHERE DepartmentName = $1';
+	if(!isEmptyOrNull(request.body.DepartmentName) ) {
+		pool.query(queryText1, [request.body.DepartmentName], (err, result) => {
+			if(err || !result.rows[0]) {
+				return response.status(400).send({ 'message': 'Error occured' });
+			} else {
+				const deptId = result.rows[0].departmentid;
+				const StartDate = !isEmptyOrNull(request.body.StartDate) ? request.body.StartDate : null;
+				const EndDate = !isEmptyOrNull(request.body.EndDate) ? request.body.EndDate : null;
+				const FirstName = !isEmptyOrNull(request.body.FirstName) ? request.body.FirstName : null;
+				const LastName =  !isEmptyOrNull(request.body.LastName) ? request.body.LastName : null;
+				const Email = !isEmptyOrNull(request.body.Email) ? request.body.Email : null;
+
+				pool.query(queryText, [FirstName, LastName, Email, StartDate, EndDate, deptId, '%'+FirstName+'%', '%'+LastName+'%', '%'+Email+'%'], (err, result) => {
+			    	if (err) {
+						console.error('Error searching employee', err.stack)
+						return response.status(400).send({ 'message': 'Error occured' });
+					}
+					return response.status(200).json(result.rows);
+		    	})	
+			}
+		});
+	} else {
+		const deptId = null;
+		const StartDate = !isEmptyOrNull(request.body.StartDate) ? request.body.StartDate : null;
+		const EndDate = !isEmptyOrNull(request.body.EndDate) ? request.body.EndDate : null;
+		const FirstName = !isEmptyOrNull(request.body.FirstName) ? request.body.FirstName : null;
+		const LastName =  !isEmptyOrNull(request.body.LastName) ? request.body.LastName : null;
+		const Email = !isEmptyOrNull(request.body.Email) ? request.body.Email : null;
+
+		pool.query(queryText, [FirstName, LastName, Email, StartDate, EndDate, deptId, '%'+FirstName+'%', '%'+LastName+'%', '%'+Email+'%'], (err, result) => {
+	    	if (err) {
+				console.error('Error searching employee', err.stack)
+				return response.status(400).send({ 'message': 'Error occured' });
+			}
+			return response.status(200).json(result.rows);
+    	})
+	}
+
 }
 
 const getIssueHistoryByIssueId = (request, response) => {
@@ -265,12 +295,88 @@ const deleteNotice = (request, response) => {
 		const queryText = 'UPDATE Notices SET IsActive = false WHERE NoticeId = $1';
 		pool.query(queryText, [request.body.NoticeId], (err, res) => {
 			if(err) {
-			return res.status(400).send({ 'message': 'Error occured' });
+				return res.status(400).send({ 'message': 'Error occured' });
 			}
 			response.status(200).json({deleted: true});
 		})
 	}
 }
+
+const updateNotice = (request, response) => {
+	console.log([request.body.Title, request.body.Description, request.body.StartDate, request.body.ExpirationDate, request.body.NoticeId]);
+	console.log("inside update");
+	if(!request.userauth || !request.userauth.isAdmin) {
+		response.status(400).send( {message : 'Not Authorized!'});
+		console.log("Unauthorized");
+	} else if ((isEmptyOrNull(request.body.Title)) || (isEmptyOrNull(request.body.Description))) {
+		response.status(400).send( {message : 'Empty Parameters!'});
+	} 
+	else {
+		const queryText = 'UPDATE Notices SET Title = $1, Description=$2, StartDate=$3, ExpirationDate=$4 WHERE NoticeId = $5';
+		pool.query(queryText, [request.body.Title, request.body.Description, request.body.StartDate, request.body.ExpirationDate, request.body.NoticeId], (err, res) => {
+			if(err) {
+				return response.status(400).send({ 'message': 'Error occured' });
+			}
+			return response.status(200).json({editedNotice: true});
+		})
+	}	
+}
+
+const updateProfile = (request, response) => {
+	if(!request.userauth) {
+		console.log("Unauthorized");
+		return	response.status(400).send( {message : 'Not Authorized!'});
+	}
+	const queryText = 'UPDATE Employees SET FirstName = $1, LastName=$2, DepartmentId=$3 WHERE EmployeeId = request.userauth.employeeId';
+	const queryText2 = 'UPDATE Users SET Password = $1 WHERE userId = $2 AND Password = $3';
+
+	const shouldAbort = err => {
+    if (err) {
+      console.error('Error in transaction', err.stack)
+      pool.query('ROLLBACK', err => {
+        if (err) {
+          console.error('Error rolling back client', err.stack)
+        }
+      })
+    }
+    return !!err
+  }
+
+  pool.query('BEGIN', err => {
+  	if (shouldAbort(err)) return;
+	const queryText1 = 'UPDATE Employees SET FirstName = $1, LastName=$2 WHERE EmployeeId = $3';
+	const queryText2 = 'UPDATE Users SET Password = $1 WHERE userId = $2 AND Password = $3';
+
+	pool.query(queryText1, [request.body.FirstName,request.body.LastName, request.userauth.employeeId], (err, res) => {
+		if(shouldAbort(err)) return;	
+		if(!request.body.OldPassword || !request.body.NewPassword || request.body.NewPassword !== request.body.ConfirmPassword) {
+			pool.query('COMMIT', err => {
+				if(err) {
+					console.error('Error updating profile', err.stack)
+					return res.status(400).send({ 'message': 'Error occured' });
+				}
+				else {
+					return response.status(200).json({'message' : 'Updated'});
+				}
+			})
+		} else {
+			pool.query(queryText2, [request.body.NewPassword, request.userauth.userId, request.body.OldPassword], (err, res) => {
+				if(shouldAbort(err)) return;
+				pool.query('COMMIT', err => {
+					if(err) {
+						console.error('Error updating profile', err.stack)
+						return res.status(400).send({ 'message': 'Error occured' });
+					}
+					else {
+						return response.status(200).json({'message' : 'Updated'});
+					}
+				})
+			})
+		}
+	})
+  })
+}
+
 
 module.exports = {
   createUser,
@@ -284,5 +390,7 @@ module.exports = {
   authWithToken,
   publishNotice,
   getAllNotices,
-  deleteNotice
+  deleteNotice,
+  updateNotice,
+  updateProfile
 }

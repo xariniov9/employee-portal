@@ -42,7 +42,13 @@ class CreateNotice extends Component{
             //signInUserFailure(result.response.data);
             console.log("error in auth");
           } else {
-            console.log("Employee Created")
+            this.setState({Title: "",
+                  Description:"",
+                  StartDate:"",
+                  ExpirationDate:"",
+
+                  validationError: ""});
+            console.log("Notice Created")
           }
         }).catch(err => {
             console.log(err)
@@ -50,7 +56,7 @@ class CreateNotice extends Component{
     };
 
   handleSubmit(event) {
-    const token = sessionStorage.jwtToken;
+     const token = sessionStorage.jwtToken;
 
     this.validateFieldsAndPublishNotice({token: token, Title: this.state.Title, Description: this.state.Description, StartDate: this.state.StartDate, ExpirationDate: this.state.ExpirationDate});
     event.preventDefault();
