@@ -20,6 +20,8 @@ class Notices extends Component{
     this.getNotices = this.getNotices.bind(this);
     this.onUpdateNotice = this.onUpdateNotice.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.formatDate = this.formatDate.bind(this);
+    this.cancelUpdate = this.cancelUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -42,6 +44,9 @@ class Notices extends Component{
     this.setState({updateMode: true, formData: {Title: this.state.selectedNotice.title, Description: this.state.selectedNotice.description, StartDate: "", ExpirationDate: ""}});
   }
 
+  cancelUpdate() {
+    this.setState({updateMode: false});
+  }
   getNotices() {
     const token = sessionStorage.jwtToken;
     const _this = this;
@@ -108,6 +113,12 @@ class Notices extends Component{
     }); 
     event.preventDefault();
   }
+
+  formatDate(d) {
+    if(d)
+      return d.substr(0, 10);
+    return "";
+  }
   render() {
     var _this = this;
 		return (
@@ -120,7 +131,7 @@ class Notices extends Component{
             </div>
             <hr></hr>
             <div className="MainContentCardBody scrollableArea">
-              <table style={{width:"100%", "fontFamily":"Roboto"}}>
+              <table style={{width:"100%"}}>
               <tbody className="small-light">
                 <tr className="row-header"><td>Title</td><td>Posted By</td></tr>
                 {
@@ -144,67 +155,59 @@ class Notices extends Component{
               !this.state.updateMode ?
                 (
                   <div>
-                  {
-                    this.state.user.isAdmin && (<div>
-                    <button onClick={this.onUpdateNotice}>Update</button>
-                    <button onClick={this.handleDelete}>Delete</button>
-                    </div>)
-                  }
+                 
 
                   <div className="lbmodal-title">{this.state.selectedNotice.title}</div>
-                  <div className="lbbtnClrd lborange1">Active</div>
+                  <div className="modal-header meta-data"> By <strong>{" " + this.state.selectedNotice.firstname + " " + this.state.selectedNotice.lastname + " "}</strong> on <strong>{" " + this.formatDate(this.state.selectedNotice.startdate) }</strong></div>
+                  <br></br>
                   <div className="small-lighter">
-                    <br></br>
-                    <table style={{"width": "100%", "textAlign": "center"}}>
-                      <tbody>
-
-                      <tr><td className="modal-header">Start Date</td><td className="modal-header">Expiry</td></tr>
-                      <tr><td>{this.state.selectedNotice.startdate}</td><td>{this.state.selectedNotice.expirationdate}</td></tr>
-                    
-                      </tbody>
-                    </table>
-                    <br></br>
-                    <div style = {{textAlign:"center"}}>
-                      <div className= "modal-header">Posted By</div>
-                      <div> {this.state.selectedNotice.firstname + " " + this.state.selectedNotice.lastname}</div>
-                      <br></br>
-                      <div className= "modal-header">Description</div>
-                      <div>{this.state.selectedNotice.description}</div>
+                    <div>                      
+                      <div className="notice-desc">{this.state.selectedNotice.description}</div>
                       <br></br>              
                     </div>
                   </div>
+                   {
+                    this.state.user.isAdmin && (<div>
+                    <button className="submit-btn-retro-sml" onClick={this.onUpdateNotice}>Update</button>
+                    <button className="submit-btn-retro-sml" onClick={this.handleDelete}>Delete</button>
+                    </div>)
+                    }
                   </div>
                 ) :( <div>Update Notice
 
                     <form onSubmit={this.handleUpdate}>
                       <label>
+                      <div className="form-field"> 
                       Title : 
                       <input type="text" name="Title" value={this.state.formData.Title} onChange={this.handleChange}/>
+                      </div>
                       </label>
 
-                      <br></br>
                       
                       <label>
+                      <div className="form-field"> 
                       Description : 
-                      <input type="text" name="Description" value={this.state.formData.Description} onChange={this.handleChange}/>
+                      <textarea rows={5} cols={16} type="text" name="Description" value={this.state.formData.Description} onChange={this.handleChange}/>
+                      </div>
                       </label>
 
-                      <br></br>
 
                       <label>
+                      <div className="form-field"> 
                       Start Date : 
                       <input type="text" name="StartDate" value={this.state.formData.StartDate} onChange={this.handleChange}/>
+                      </div>
                       </label>
 
-                      <br></br>
                       <label>
+                      <div className="form-field"> 
                       Expiration Date: 
                       <input type="text" name="ExpirationDate" value={this.state.formData.ExpirationDate} onChange={this.handleChange}/>
+                      </div>
                       </label>
 
-                      <br></br>
-
-                      <input type="submit" value="Submit" />
+                      <input className="submit-btn-retro" type="submit" value="Submit" />
+                      <button onClick={this.cancelUpdate} className="submit-btn-retro">Cancel</button>
                   </form>
                 </div> ) 
             }

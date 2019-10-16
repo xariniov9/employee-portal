@@ -12,6 +12,7 @@ const verifyToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.body.token;
   
   if(!token) {
+    console.log("Token not provided, unauthorised for this request");
     return res.status(400).send({ 'message': 'Token is not provided' });
   }
   try {
@@ -35,6 +36,7 @@ const verifyAdminToken = (req, res, next) => {
   const token = req.headers['x-access-token'] || req.body.token;
   
   if(!token) {
+    console.log("Token not provided, unauthorised for this request");
     return res.status(400).send({ 'message': 'Token is not provided' });
   }
   try {

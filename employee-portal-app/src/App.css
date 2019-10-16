@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  background: #e55151;
 }
 
 .App-logo {
@@ -19,4 +19,69 @@
 
 .App-link {
   color: #09d3ac;
+}
+
+input, textarea, select {
+  background: #ddd;
+  border: none;
+  outline: none;
+  padding: 4px;
+  color: #333;
+  width: 170px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+}
+::-webkit-input-placeholder { color: #666;} 
+:-moz-placeholder { color: #666; }
+::-moz-placeholder { color: #666; }
+:-ms-input-placeholder { color: #666; }
+
+input:focus {
+  -webkit-box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+  box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+}
+
+textarea:focus {
+  -webkit-box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+  box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+
+}
+
+select:focus {
+  -webkit-box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+  box-shadow: 0 1px 2px 3px rgba(57,255,20,0.3);
+}
+
+.submit-btn-retro {
+  padding: 10px;
+  width: 88%;
+  margin: 20px;
+  margin-top: 5px;
+  font-family: monospace;
+  background: #e69675;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+}
+
+.submit-btn-retro-sml {
+  padding: 8px;
+  width: 30%;
+  margin: 5px;
+  font-family: monospace;
+  background: #e69675;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 2px 1px rgba(0,0,0,0.3);
+  color: #333;
+  text-align: center;
+  cursor: pointer;
 }

@@ -1,9 +1,9 @@
 tr {
-    padding:5px;
+    padding:8px;
 }
 
 td {
-    padding: 3px;
+    padding: 8px;
 }
 
 .lbTitle {
@@ -14,8 +14,7 @@ td {
  }
 
 .MainContentCardBody {
-    color: #666;
-    font-family: montserrat;
+    font-family: Lato;
     font-weight: semi-bold;
     font-size: small;
     padding: 0 10px;
@@ -32,8 +31,13 @@ tr {
     padding: 5px;
 }
 
+label {
+  font-family: Lato, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .MainContentCardTitle {
-    color: #141c3a;
     padding: 10px;
     font-family: Lato,"Exo 2",Helvetica,sans-serif;
 }
@@ -48,14 +52,15 @@ tr {
 }
 
 .LBContentCard {
-	background: #fff;
-  border-radius: 3px;
-  min-width: 300px;
-  min-height: 430px;
-	border: 1px solid #eee;
-	box-shadow: 1px 5px 7px rgba(0,0,0,0.15);
-  margin: 0px 25px 0px 15px;
-  padding: 7px;
+	   color: #000;
+    background: #fff;
+    font-size: 14px;
+    border-radius: 3px;
+    min-width: 350px;
+    border: 4px solid #000;
+    box-shadow: 1px 5px 7px rgba(0,0,0,0.15);
+    margin: 0px 25px 0px 15px;
+    padding: 7px;
 }
 
 .row-header {
@@ -70,7 +75,6 @@ tr {
 
 .small-lighter {
   font-size: small;
-  color: #555;
   font-family: "Montserrat";
 }
 .bolder {
@@ -88,11 +92,9 @@ tr {
 }
 
 .modal-header {
-  font-weight: bolder;
   text-shadow: #444;
   font-size: small;
-  color: #222;
-  font-family: "Arial"
+  color: #888;
 }
 
 .lbbtnClrd {
@@ -150,23 +152,62 @@ tr {
 
   .lighterText1 {
     font-family: Lato, sans-serif;
-    font-size: 10px;
-    color: #aaa;
+    font-size: 12px;
   }
 
   .lbmodal-title {
-    font-size: 15px;
+    font-size: 18px;
     line-height: 1.4em;
     text-transform: uppercase;
-    letter-spacing: .15em;
+    font-weight: bold;
+    letter-spacing: .10em;
     margin: 0;
     display: inline-block;
   }
 
   .no-results {
-    margin-top: 50px;
+    margin-top: 30px;
+    margin-bottom: 30px;
     text-align: center;
     font-size: 20px;
     font-weight: bolder;  
-    color: #ccc;
+    color: #aaa;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px;
+    margin-top: 8px;
+  }
+
+  .notice-desc {
+    max-width: 350px;
+    font-size: 16px;
+    font-family: Lato, Montserrat, sans-serif;
+  }
+
+  .meta-data {
+    font-style: oblique;
+  }
+
+  .chkbox {
+    background: rgba(255,255,255,0);
+    box-shadow: none;
+    width: 65%;
+  }
+/*  .form-field-area {
+     display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    justify-items: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+    margin: 10px;
+    margin-top: 5px; 
+  }*/
+
+  .ContentCardNotice {
+    min-width: 450px;
   }

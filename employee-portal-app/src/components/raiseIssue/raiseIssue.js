@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-class CreateNotice extends Component{
+class RaiseIssue extends Component{
   _isMounted= false;
   constructor(props) {
 
@@ -9,11 +9,12 @@ class CreateNotice extends Component{
     this.state = {
         Title: "",
         Description:"",
-        StartDate:"",
-        ExpirationDate:"",
-
+        Priority:"",
         validationError: "",
-
+        priorities : [{display: "NORMAL", value: 1},
+                      {display: "URGENT", value: 2},
+                      {display: "IMMEDIATE", value: 3}
+        ],
         user: {
 
         }
@@ -21,44 +22,37 @@ class CreateNotice extends Component{
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.validateFieldsAndPublishNotice = this.validateFieldsAndPublishNotice.bind(this);
+    this.validateFieldsAndRaiseIssue = this.validateFieldsAndRaiseIssue.bind(this);
   }
 
   handleChange(evt) {
     this.setState({ [evt.target.name]: evt.target.value });
   }
     
-    validateFieldsAndPublishNotice = (values) => {
-        const _this = this;
+  validateFieldsAndRaiseIssue = (values) => {
+      const _this = this;
+      values.Priority = (values.Priority === null ? 1 : values.Priority);
+      const payload = axios.post(`http://localhost:3001/api/createIssue`, values)
+          .then((result) => {
+                  if (result.response && result.response.status !== 200) {
+                    console.log("error in auth");
+                  } else {
+                    this.setState({Title: "",
+                          Description:"",
+                          Priority: "",
 
-        const payload = axios.post(`http://localhost:3001/api/publishNotice`, values)
-            .then((result) => {
-          // Note: Error's "data" is in result.response.data (inside "response")
-          // success's "data" is in result.data
-          
-          this.setState({Email: "", Password: ""})
-          
-          if (result.response && result.response.status !== 200) {
-            //signInUserFailure(result.response.data);
-            console.log("error in auth");
-          } else {
-            this.setState({Title: "",
-                  Description:"",
-                  StartDate:"",
-                  ExpirationDate:"",
-
-                  validationError: ""});
-            console.log("Notice Created")
-          }
-        }).catch(err => {
-            console.log(err)
-        });
-    };
+                          validationError: ""});
+                    console.log("Issue Created")
+        }
+      }).catch(err => {
+          console.log(err)
+      });
+  };
 
   handleSubmit(event) {
      const token = sessionStorage.jwtToken;
 
-    this.validateFieldsAndPublishNotice({token: token, Title: this.state.Title, Description: this.state.Description, StartDate: this.state.StartDate, ExpirationDate: this.state.ExpirationDate});
+    this.validateFieldsAndRaiseIssue({token: token, Title: this.state.Title, Description: this.state.Description, Priority: this.state.Priority});
     event.preventDefault();
   }
 
@@ -73,7 +67,7 @@ class CreateNotice extends Component{
       <div className="LBmaincard">
           <div className="LBContentCard">
           <div className = "MainContentCardTitle">
-            <div className="titleText lbTitle">Publish Notice</div>
+            <div className="titleText lbTitle">Raise Issue</div>
             <div className="lbbtnClrd lborange1">New</div>
             <div className = "lighterText1">Fill Details</div>
           </div>
@@ -100,15 +94,11 @@ class CreateNotice extends Component{
 
                     <label>
                     <div className="form-field"> 
-                    Start Date : 
-                    <input type="text" name="StartDate" value={this.state.StartDate} onChange={this.handleChange}/>
-                    </div>
-                    </label>
-
-                    <label>
-                    <div className="form-field"> 
-                    Expiration Date: 
-                    <input name="ExpirationDate" value={this.state.ExpirationDate} onChange={this.handleChange}/>
+                    Priority : 
+                    <select value={this.state.priority} 
+                    onChange={(e) => this.setState({Priority: e.target.value, validationError: e.target.value === "" ? "You must select a topic" : ""})}>
+                        {this.state.priorities.map((topic) => <option key={topic.value} value={topic.value}>{topic.display}</option>)}
+                    </select>
                     </div>
                     </label>
 
@@ -125,4 +115,4 @@ class CreateNotice extends Component{
   }
 }
 
-export default CreateNotice;
+export default RaiseIssue;

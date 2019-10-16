@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './signIn.css';
 import axios from 'axios';
+import Logo from './logo-light.png';
 
 class SignIn extends Component{
   _isMounted= false;
@@ -59,30 +60,34 @@ class SignIn extends Component{
   }
   render() {
 		return (
-        <div className="FormCard addProblemCard">
-            <div className="FormCardTitle">
-                <p>Sign In</p>
-            </div>
-            <div className="centerAlign">
-                <hr className="coloredBar"></hr>
-            </div>
-            <div className = "FormCardBody">
-                <form onSubmit={this.handleSubmit}>
-                    <label>
-                    Email : 
-                    <input type="text" name="Email" value={this.state.Email} onChange={this.handleChange}/>
-                    </label>
+      <div className = "splash">
+        <div className="sign-in-container">
+        <img className="logo-sign-in" src={Logo}></img>
+        <div className="sign-in-form">
+          <h1><span class="color-g">&nbsp;Log In</span> to<span class="color-y">&nbsp;H-Corp</span> Employee Portal</h1>
+          <p>You can track your issues, search colleagues and get latest news about the company.</p>
+          <form onSubmit={this.handleSubmit}>
+              <label>
+              <div className="form-field sign-in"> 
+              Email : 
+              <input type="text" name="Email" value={this.state.Email} onChange={this.handleChange}/>
+              </div>
+              </label>
 
-                    <br></br>
+              <br></br>
 
-                    <label>
-                    Password : 
-                    <input type="text" name="Password" value={this.state.Password} onChange={this.handleChange}/>
-                    </label>
-                    <input type="submit" value="Submit" />
-                </form>
-            </div>
+              <label>
+              <div className="form-field sign-in"> 
+              Password : 
+              <input type="password" name="Password" value={this.state.Password} onChange={this.handleChange}/>
+              </div>
+              </label>
+              <br></br>
+              <input className="submit-btn-retro" type="submit" value="Submit" />
+          </form>
         </div>
+      </div>
+    </div>
     )
   }
 }

@@ -65,20 +65,20 @@ const authWithToken = (req, res) => {
 
 
 const searchEmployees = (request, response) => {
-	const queryText = `SELECT * 
-    FROM Employees
+	const queryText = `SELECT Employees.*, Departments.DepartmentName
+    FROM Employees INNER JOIN Departments ON Employees.DepartmentId = Departments.DepartmentId
     WHERE
 	    ($1::text IS NOT NULL AND  FirstName LIKE $7) OR
 	    ($2::text IS NOT NULL AND  LastName LIKE $8) OR
 	    ($3::text IS NOT NULL AND  Email LIKE $9) OR
-   	    ($6::int IS NOT NULL AND  DepartmentId = $6::int) OR
+   	    ($6::int IS NOT NULL AND  Employees.DepartmentId = $6::int) OR
 	    ($4::timestamp(3) IS NOT NULL AND  DateOfJoining >= ($4::timestamp(3)) ) OR
 	    ($5::timestamp(3) IS NOT NULL AND  DateOfJoining <= ($5)::timestamp(3))`;
 
 	const queryText1 = 'SELECT DepartmentId from Departments WHERE DepartmentName = $1';
 	if(!isEmptyOrNull(request.body.DepartmentName) ) {
 		pool.query(queryText1, [request.body.DepartmentName], (err, result) => {
-			if(err || !result.rows[0]) {
+			if(err || !result.rows[0]	) {
 				return response.status(400).send({ 'message': 'Error occured' });
 			} else {
 				const deptId = result.rows[0].departmentid;
@@ -133,10 +133,13 @@ const getIssueHistoryByIssueId = (request, response) => {
 } 
 
 const createUser = (request, response) => {
+  console.log("Creating Employee by " + request.userauth)
   if (!request.body.Email || !request.body.Password) {
+  	  console.log("Email or Password missing");
       return response.status(400).send({'message': 'Some values are missing'});
   }
   if (!Helper.isValidEmail(request.body.Email)) {
+  	console.log("Email is invalid")
     return response.status(400).send({ 'message': 'Please enter a valid email address' });
   }
 
@@ -153,16 +156,20 @@ const createUser = (request, response) => {
   }
 
   pool.query('BEGIN', err => {
+  	console.log("Inside Begin");	
   	if (shouldAbort(err)) return;
   	const depttname = request.body.DepartmentName;
 	const queryText1 = 'INSERT INTO Employees(FirstName,LastName,Email,DateOfJoining,TerminationDate,DepartmentId) VALUES($1,$2,$3,$4,$5,(SELECT DepartmentId from Departments WHERE DepartmentName = $6))';
 	const queryText2 = 'INSERT INTO Users(EmployeeId,Password,IsAdmin) VALUES((SELECT EmployeeId from Employees WHERE Email = $1),$2,$3)';
-	pool.query(queryText1, [request.body.FirstName,request.body.LastName,request.body.Email,request.body.DateOfJoining,request.body.TerminationDate,request.body.DepartmentName], (err, res) => {
+	pool.query(queryText1, [request.body.FirstName,request.body.LastName,request.body.Email,request.body.DateOfJoining,null,request.body.DepartmentName], (err, res) => {
+		console.log("Inside 1");
 		if(shouldAbort(err)) return;	
 		pool.query(queryText2, [request.body.Email, request.body.Password, request.body.IsAdmin], (err, res) => {
+			console.log("Inside 2");
 			if(shouldAbort(err)) return;
 			const result = res.rows;
 			pool.query('COMMIT', err => {
+				console.log("INSIDE COMMIT");
 				if(err) {
 					console.error('Error adding user', err.stack)
 					return res.status(400).send({ 'message': 'Error occured' });
@@ -197,7 +204,7 @@ const createIssue = (request, response) => {
 	pool.query(queryText1, [request.body.Title,request.body.Description,request.userauth.employeeId,request.body.Priority], (err, res) => {
 		if(shouldAbort(err)) return;	
 
-		pool.query(queryText2, [request.body.PostedBy], (err, res) => {
+		pool.query(queryText2, [request.userauth.employeeId], (err, res) => {
 			if(shouldAbort(err)) return;
 			pool.query('COMMIT', err => {
 				if(err) {
@@ -214,6 +221,8 @@ const createIssue = (request, response) => {
 }
 
 const getAllIssuesByEmployeeId = (request, response) => {
+	console.log("Issues by employee requested! " + request.body.EmployeeId);
+
 	const queryText = `WITH CTE AS
 	(
 		SELECT I.IssueId, I.Title, I.Priority, I.PostedBy, I.Description, I.IsActive, IH.AssignedTo, IH.Status,

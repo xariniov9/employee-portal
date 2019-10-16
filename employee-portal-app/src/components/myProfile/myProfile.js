@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Modal from 'react-responsive-modal';
+import './myProfile.css';
 
 class MyProfile extends Component{
   constructor(props) {
@@ -20,7 +21,10 @@ class MyProfile extends Component{
 
   componentDidMount() {
     this.setState({user: this.props.user});
-    this.setState({formData: {FirstName: this.state.user.firstName, LastName: this.state.user.lastName, NewPassword: "", ConfirmPassword:"", OldPassword:""}}) 
+    const _this = this;
+    setTimeout(function() {
+      _this.setState({formData: {FirstName: _this.state.user.firstName, LastName: _this.state.user.lastName, NewPassword: "", ConfirmPassword:"", OldPassword:""}}) 
+    });
   }
   onOpenModal(event,data) {
     this.setState({modalOpen: true, formData: {FirstName: this.state.user.firstName, LastName: this.state.user.lastName, NewPassword: "", ConfirmPassword:"", OldPassword:""}});
@@ -68,46 +72,59 @@ class MyProfile extends Component{
   render() {
     var _this = this;
 		return (
-        <div className="LBmaincard">
-          <a onClick = {(e) => _this.onOpenModal(e)}>My Profile</a>
-          
-          <Modal className="roundedBorder" open={this.state.modalOpen} onClose={this.onCloseModal} closeIconSize={14} center>
-            <form onSubmit={this.handleSubmit}>
+        <div className="LBContentCard LBmaincard">
+                
+              <form onSubmit={this.handleSubmit}>
                     <label>
+                    <div className="form-field"> 
+
                     First Name : 
                     <input type="text" name="FirstName" value={this.state.formData.FirstName} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
                     
                     <label>
+                    <div className="form-field"> 
                     Last Name : 
                     <input type="text" name="LastName" value={this.state.formData.LastName} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
                     <label>
+                    <div className="form-field"> 
+                    Email : 
+                    <input style={{"cursor": "not-allowed"}} type="text" name="Email" value={this.state.user.email} disabled={true}/>
+                    </div>
+                    </label>
+
+                    <label>
+                    <div className="form-field"> 
                     New Password : 
                     <input type="text" name="NewPassword" value={this.state.formData.NewPassword} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
 
                     <label>
+                    <div className="form-field"> 
                     Confirm Password : 
                     <input type="text" name="ConfirmPassword" value={this.state.formData.ConfirmPassword} onChange={this.handleChange}/>
+                    </div>
+                    </label>
+
+
+                    <label>
+                    <div className="form-field"> 
+                    Old Password : 
+                    <input type="text" name="OldPassword" value={this.state.formData.OldPassword} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
                     <br></br>
 
-                    <label>
-                    Old Password : 
-                    <input type="text" name="OldPassword" value={this.state.formData.OldPassword} onChange={this.handleChange}/>
-                    </label>
-
-                    <input type="submit" value="Update" />
-                </form>
-          </Modal>
+                    <input className="submit-btn-retro" type="submit" value="Update" />
+                </form>     
         </div>
       )
   }

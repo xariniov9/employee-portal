@@ -15,7 +15,7 @@ class CreateEmployee extends Component{
         IsAdmin: false,
         DepartmentName: "",
         validationError: "",
-
+        topics : [],
         user: {
 
         }
@@ -32,7 +32,7 @@ class CreateEmployee extends Component{
     
     validateFieldsAndCreateUser = (values) => {
         const _this = this;
-        const token = sessionStorage.jwtToken;
+        
 
         const payload = axios.post(`http://localhost:3001/api/users`, values)
             .then((result) => {
@@ -43,6 +43,7 @@ class CreateEmployee extends Component{
           
           if (result.response && result.response.status !== 200) {
             //signInUserFailure(result.response.data);
+            console.log(result.response.data);
             console.log("error in auth");
           } else {
             console.log("Employee Created")
@@ -53,12 +54,24 @@ class CreateEmployee extends Component{
     };
 
   handleSubmit(event) {
-    this.validateFieldsAndCreateUser({Email: this.state.Email, Password: this.state.Password, IsAdmin: this.state.IsAdmin, DepartmentName: this.state.DepartmentName, FirstName: this.state.FirstName, LastName: this.state.LastName, DateOfJoining: this.state.DateOfJoining});
+    const token = sessionStorage.jwtToken;
+    this.validateFieldsAndCreateUser({token: token, Email: this.state.Email, Password: this.state.Password, IsAdmin: this.state.IsAdmin, DepartmentName: this.state.DepartmentName, FirstName: this.state.FirstName, LastName: this.state.LastName, DateOfJoining: this.state.DateOfJoining});
     event.preventDefault();
   }
 
   componentDidMount() {
     this._isMounted = true;
+    const _this = this;
+    const token = sessionStorage.jwtToken;
+    const values = {token: token};
+    axios.post('http://localhost:3001/api/getAllDepartments',values).then((result) => {
+      if(result.response && result.response.status !== 200) {
+        console.log("failed to load departments in create Employee!")
+      } else {
+         let topicsFromApi = result.data.map(topic => { return {value: topic.departmentname, display: topic.departmentname} });
+        _this.setState({ topics: [{value: '', display: 'Select Department'}].concat(topicsFromApi) });
+      }
+    })
   }
   componentWillUnmount() {
     this._isMounted = false;
@@ -77,49 +90,63 @@ class CreateEmployee extends Component{
             <div className = "FormCardBody">
                 <form onSubmit={this.handleSubmit}>
                     <label>
+                    <div className="form-field"> 
                     First Name : 
                     <input type="text" name="FirstName" value={this.state.FirstName} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
                     
                     <label>
+                    <div className="form-field"> 
                     Last Name : 
                     <input type="text" name="LastName" value={this.state.LastName} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
+                    
 
                     <label>
+                    <div className="form-field"> 
                     Department Name : 
-                    <input type="text" name="DepartmentName" value={this.state.DepartmentName} onChange={this.handleChange}/>
+                    <select value={this.state.topic} 
+                    onChange={(e) => this.setState({DepartmentName: e.target.value, validationError: e.target.value === "" ? "You must select a topic" : ""})}>
+                        {this.state.topics.map((topic) => <option key={topic.value} value={topic.value}>{topic.display}</option>)}
+                    </select>
+                    </div>
                     </label>
 
-                    <br></br>
                     <label>
+                    <div className="form-field"> 
                     Joining Date: 
                     <input type="text" name="DateOfJoining" value={this.state.DateOfJoining} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
 
                     <label>
+                    <div className="form-field"> 
                     Email : 
                     <input type="text" name="Email" value={this.state.Email} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
-                    <br></br>
 
                     <label>
+                    <div className="form-field"> 
                     Password : 
                     <input type="text" name="Password" value={this.state.Password} onChange={this.handleChange}/>
+                    </div>
                     </label>
 
                     <label>
+                    <div> 
                     Is Admin?
-                    <input type="checkbox" name="IsAdmin" value={this.state.IsAdmin} onChange={this.handleChange}/>
+                    <input className="chkbox" type="checkbox" name="IsAdmin" value={this.state.IsAdmin} onChange={this.handleChange}/>
+                    </div>
                     </label>
-                    <input type="submit" value="Submit" />
+                    <br></br>
+                    <input className="submit-btn-retro" type="submit" value="Submit" />
                 </form>
             </div>
         

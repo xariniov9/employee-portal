@@ -34,7 +34,7 @@ app.post('/api/authWithToken', db.authWithToken)
 app.post('/api/users', Auth.verifyAdminToken, db.createUser)
 app.post('/api/getIssueHistoryByIssueId', Auth.verifyToken, db.getIssueHistoryByIssueId)
 app.post('/api/getAllIssuesByEmployeeId', Auth.verifyToken, db.getAllIssuesByEmployeeId)
-app.get('/api/getAllDepartments', Auth.verifyToken, db.getAllDepartments)
+app.post('/api/getAllDepartments', Auth.verifyToken, db.getAllDepartments)
 app.post('/api/getUserByEmailId', Auth.verifyToken, db.getUserByEmailId)
 app.post('/api/publishNotice', Auth.verifyAdminToken, db.publishNotice);
 app.post('/api/getAllNotices', Auth.verifyToken, db.getAllNotices);
