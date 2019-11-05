@@ -27,7 +27,7 @@ const authorizeUser = (req, res) => {
 			console.error('Error authorizing user', err.stack);
 			return res.status(400).send({ 'message': 'Error occured' });
 		}
-		if (!result.rows[0]) {
+		if (result && !result.rows[0]) {
 	      return res.status(400).send({'message': 'The credentials you provided is incorrect'});
 	    }
 	    if(!Helper.comparePassword(result.rows[0].password, req.body.Password)) {
