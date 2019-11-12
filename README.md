@@ -1,6 +1,6 @@
 #EMPLOYEE PORTAL
 
-![alt text](https://)
+![screenshot](https://github.com/xariniov9/employee-portal/blob/master/employee-portal-home-page.png)
 
 
 This project is made using POSTGRESQL, REACT, NODE and EXPRESS.
