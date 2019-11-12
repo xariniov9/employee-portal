@@ -27,12 +27,16 @@ class CreateEmployee extends Component{
   }
 
   handleChange(evt) {
+    if(evt.target.name === 'IsAdmin') {
+      this.setState({ [evt.target.name]: evt.target.checked});
+      return;
+    }
     this.setState({ [evt.target.name]: evt.target.value });
   }
     
     validateFieldsAndCreateUser = (values) => {
         const _this = this;
-        
+        console.log(values);
 
         const payload = axios.post(`http://localhost:3001/api/users`, values)
             .then((result) => {

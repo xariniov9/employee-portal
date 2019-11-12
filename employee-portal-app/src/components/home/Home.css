@@ -67,3 +67,36 @@
   cursor: pointer;
   border-bottom: 4px solid #000;
 }
+
+.info-card {
+	max-width: 250px;
+	margin: 30px;
+	padding: 10px;
+	border: 3px solid #000;	
+	background-color: #e69675;
+	color: #222;
+	font-family: monospace;
+	font-size: 14px;
+}
+
+.info-title {
+	font-family: monospace;
+	font-weight: bold;
+	font-size: large;
+	padding: 3px;
+	color: #000;
+	border-bottom: 1px solid #000;
+}
+
+#header-greet {
+	font-family: monospace;
+	font-size: larger;
+	font-weight: bolder;
+	margin: 10px;
+	background-color: #e69675;
+	padding: 5px;
+}
+
+.col-hello {
+	color: #333;
+}

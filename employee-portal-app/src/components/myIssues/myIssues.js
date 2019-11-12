@@ -12,7 +12,11 @@ class MyIssues extends Component{
       modalOpen: false,
       selectedIssue: {},
       formData: {},
-      updateMode: false
+      updateMode: false,
+      priorities : [{display: "NORMAL", value: 1},
+                      {display: "URGENT", value: 2},
+                      {display: "IMMEDIATE", value: 3}
+        ]
     };
     this.onCloseModal = this.onCloseModal.bind(this);
     this.onOpenModal = this.onOpenModal.bind(this);
@@ -82,7 +86,7 @@ class MyIssues extends Component{
       } 
       axios.post(`http://localhost:3001/api/getAllIssuesByEmployeeId`, values).then((result) => {
       if (result.response && result.response.status !== 200) {
-        console.log("error in getting notices");
+        console.log("error in getting issues");
       } else {
           _this.setState({issues: result.data});
         }
@@ -103,20 +107,19 @@ class MyIssues extends Component{
     const _this = this;
     console.log(this.state.formData);
     
-    // axios.post(`http://localhost:3001/api/updateNotice`, { NoticeId: this.state.selectedNotice.noticeid, 
-    //                                                         token: token, 
-    //                                                         Title: this.state.formData.Title, 
-    //                                                         Description: this.state.formData.Description, 
-    //                                                         StartDate: this.state.formData.StartDate, 
-    //                                                         ExpirationDate: this.state.formData.ExpirationDate}).then((result) => {
-    //   if (result.response && result.response.status !== 200) {
-    //     console.log("error in updating notices");
-    //   } else {
-    //       _this.setState({modalOpen: false, selectedNotice: {}, updateMode: false});
-    //       _this.getNotices();
-    //         console.log(result.data);
-    //     }
-    // });
+    axios.post(`http://localhost:3001/api/updateMyIssue`, { IssueId: this.state.formData.IssueId, 
+                                                            token: token, 
+                                                            Title: this.state.formData.Title, 
+                                                            Description: this.state.formData.Description, 
+                                                            Priority: this.state.formData.Priority}).then((result) => {
+      if (result.response && result.response.status !== 200) {
+        console.log("error in updating issue");
+      } else {
+          _this.setState({modalOpen: false, selectedIssue: {}, updateMode: false});
+          _this.getMyIssues();
+            console.log(result.data);
+        }
+    });
     event.preventDefault();
   }
   handleDelete(event) {
@@ -208,12 +211,10 @@ class MyIssues extends Component{
                       <br></br>              
                     </div>
                   </div>
-                   {
-                    this.state.user.isAdmin && (<div>
-                    <button className="submit-btn-retro-sml" onClick={this.onUpdateNotice}>Update</button>
-                    <button className="submit-btn-retro-sml" onClick={this.handleDelete}>Delete</button>
-                    </div>)
-                    }
+                   <div>
+                      <button className="submit-btn-retro-sml" onClick={this.onUpdateIssue}>Update</button>
+                      <button className="submit-btn-retro-sml" onClick={this.handleDelete}>Delete</button>
+                    </div>
                     <hr></hr>
                   <div className="MainContentCardBody scrollableArea">
                     <table style={{width:"100%", "textAlign": "center"}}>
@@ -263,8 +264,17 @@ class MyIssues extends Component{
 
                       <label>
                       <div className="form-field"> 
-                      Start Date : 
-                      <input type="text" name="Priority" value={this.state.formData.Priority} onChange={this.handleChange}/>
+                      Priority : 
+                      <select value={this.state.priority} 
+                        onChange={(e) => {
+                          var formData = this.state.formData;
+                          formData["Priority"] = e.target.value;
+                          this.setState({ formData: formData });
+                        } 
+                      }                
+                      >
+                          {this.state.priorities.map((topic) => <option key={topic.value} value={topic.value}>{topic.display}</option>)}
+                      </select>
                       </div>
                       </label>
 

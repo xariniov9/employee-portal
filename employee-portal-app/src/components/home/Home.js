@@ -51,7 +51,18 @@ class Home extends Component{
   handleLogOut() {
   	this.setState({user:{}, isAdmin:false, isAuth:false});
   	sessionStorage.jwtToken = '';
-  	console.log("logout successful!");
+    
+    var prevtab = document.getElementById("tab-"+this.state.selectedTab);
+    prevtab.classList.remove("selected-tab");
+    this.setState({selectedTab:1});
+
+    console.log("logout successful!");
+
+  }
+  componentWillUnmount() {
+    var prevtab = document.getElementById("tab-"+this.state.selectedTab);
+    prevtab.classList.remove("selected-tab");
+    this.setState({selectedTab:1});
   }
   changeTab(event) {
     var prevtab = document.getElementById("tab-"+this.state.selectedTab);
@@ -69,8 +80,7 @@ class Home extends Component{
 				<div>
           <div className = "header">
 
-            <div>Hello {" " + this.state.user.firstName + " " + this.state.user.lastName}</div>
-            
+            <div id="header-greet"><span className="col-hello">Hello,</span> {" " + this.state.user.firstName + " " + this.state.user.lastName}</div>
             <button style = {{width: "100px", height:"50px"}} className="submit-btn-retro-sml" onClick={this.handleLogOut}>Log Out</button>
           </div>
           <div className="header-tabs">
@@ -85,7 +95,44 @@ class Home extends Component{
             {
               this.state.selectedTab === 1 &&
               (
-                <div className="tab-div">Hello this is the landing page!</div>
+                <div className="tab-div">
+
+                  <div className="info-card">
+                    <div className="info-title">
+                    Issues
+                    </div>
+                    <br></br>
+                    You can post your issues here and like a responsible and cool organisation that we are, we will take care of you! <br></br>
+                    Issues may be anything ranging from water bottle to medicine. HR issues to counselling sessions. Extra chilled AC to annoying co-worker.
+                    You can post just about anything that bothers you.<br></br>
+                    Your issues are automatically picked up by our super hard-working admins. You can also track the progress of your issues.
+                  </div>
+                  <div className="info-card">
+                  <div className="info-title">
+                    Employees
+                  </div>
+                    <br></br>
+                    Need to find some colleague but all you know about them is their department or first name or just email? <br></br> Don't worry, find them in Employees section.
+                    You will be able to send message right from here in the future.
+                  </div>
+                  <div className="info-card">
+                  <div className="info-title">
+                    Notices
+                  </div>
+                    <br></br>
+                    Ever missed some important announcement or a notice regarding the celebrations in the cafetaria. <br></br> We have developed a notice board where you can find all the
+                    important information posted from time to time. <br></br> This information ranges from company growth to fun activities. Jokes from the CEO to client stories. 
+                    This is the playground of our leaders.
+                  </div>
+                  <div className="info-card">
+                  <div className="info-title">
+                    My Profile
+                  </div>
+                    <br></br>
+                    You can now edit your personal details as many times as you want. No need to contact HR department for typos in your information. You can now also change your password!
+                  </div>
+
+                </div>
               )
             }
             {

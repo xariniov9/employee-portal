@@ -222,7 +222,10 @@ const createIssue = (request, response) => {
 
 const getAllIssuesByEmployeeId = (request, response) => {
 	console.log("Issues by employee requested! " + request.body.EmployeeId);
-
+	// ADD more checks to prevent fake requests and admin check!
+	if(request.body.EmployeeId === '0' && request.userauth.isAdmin === false) {
+		return res.status(400).send({ 'message': 'Not Authorised!' });
+	}
 	const queryText = `WITH CTE AS
 	(
 		SELECT I.IssueId, I.Title, I.Priority, I.PostedBy, I.Description, I.IsActive, IH.AssignedTo, IH.Status,
@@ -331,6 +334,25 @@ const updateNotice = (request, response) => {
 	}	
 }
 
+const updateMyIssue = (request, response) => {
+	console.log("Update issue requested!");
+	console.log(request.body);
+	if(!request.userauth) {
+		response.status(400).send( {message : 'Not Authorized!'});
+		console.log("Unauthorized");
+	}
+	else {
+		const queryText = 'UPDATE Issues SET Title = $1, Description=$2, Priority=$3 WHERE IssueId = $4 AND PostedBy = $5';
+		//Add check this issue belongs to this user!
+		pool.query(queryText, [request.body.Title, request.body.Description, request.body.Priority, request.body.IssueId, request.userauth.employeeId], (err, res) => {
+			if(err) {
+				return response.status(400).send({ 'message': 'Error occured' });
+			}
+			return response.status(200).json({editedIssue: true});
+		})
+	}	
+}
+
 const updateProfile = (request, response) => {
 	if(!request.userauth) {
 		console.log("Unauthorized");
@@ -401,5 +423,6 @@ module.exports = {
   getAllNotices,
   deleteNotice,
   updateNotice,
-  updateProfile
+  updateProfile,
+  updateMyIssue
 }

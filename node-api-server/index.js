@@ -41,6 +41,7 @@ app.post('/api/getAllNotices', Auth.verifyToken, db.getAllNotices);
 app.post('/api/deleteNotice', Auth.verifyAdminToken, db.deleteNotice);
 app.post('/api/updateProfile', Auth.verifyToken, db.updateProfile);
 app.post('/api/updateNotice', Auth.verifyAdminToken, db.updateNotice);
+app.post('/api/updateMyIssue', Auth.verifyToken, db.updateMyIssue);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
