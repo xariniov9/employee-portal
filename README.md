@@ -1,3 +1,8 @@
+#EMPLOYEE PORTAL
+
+![alt text](https://)
+
+
 This project is made using POSTGRESQL, REACT, NODE and EXPRESS.
 
 ## STRUCTURE

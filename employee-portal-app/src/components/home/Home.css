@@ -22,7 +22,8 @@
 	justify-content: center;
 	height: calc(100vh - 150px);
 	background: #519d90;
-	padding: 50px
+	padding: 50px;
+	height: 100vh;
 }
 .header {
 	display: flex;
@@ -53,6 +54,8 @@
 .tab-div {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
 }
 
 .tab-btn-retro {
@@ -69,7 +72,8 @@
 }
 
 .info-card {
-	max-width: 250px;
+	max-width: 320px;
+	min-width: 250px;
 	margin: 30px;
 	padding: 10px;
 	border: 3px solid #000;	
@@ -95,8 +99,27 @@
 	margin: 10px;
 	background-color: #e69675;
 	padding: 5px;
+	text-align: center;
+	height: 35px;
 }
 
 .col-hello {
 	color: #333;
+}
+
+.caffene-emp {
+	margin-top:-250px;
+	margin-left: -100px;
+	height: 800px;
+	width: 800px;
+}
+
+.fat-emp {
+	max-height: 280px;
+	margin-right: -150px;
+}
+
+.cmp-logo {
+	max-width: 100px;
+	max-height: 100px;
 }

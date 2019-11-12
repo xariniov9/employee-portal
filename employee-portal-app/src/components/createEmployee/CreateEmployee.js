@@ -113,7 +113,7 @@ class CreateEmployee extends Component{
                     <label>
                     <div className="form-field"> 
                     Department Name : 
-                    <select value={this.state.topic} 
+                    <select value={this.state.DepartmentName} 
                     onChange={(e) => this.setState({DepartmentName: e.target.value, validationError: e.target.value === "" ? "You must select a topic" : ""})}>
                         {this.state.topics.map((topic) => <option key={topic.value} value={topic.value}>{topic.display}</option>)}
                     </select>

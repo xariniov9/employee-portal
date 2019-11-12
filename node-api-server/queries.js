@@ -292,7 +292,7 @@ const publishNotice = (request, response) => {
 		console.log(request.body.Title+ request.body.Description + empId + request.body.StartDate + request.body.ExpirationDate);
 		pool.query(queryText, [request.body.Title, request.body.Description, empId, request.body.StartDate, request.body.ExpirationDate], (err, result) => {
 			if(err) {
-			return res.status(400).send({ 'message': 'Error occured' });
+			return response.status(400).send({ 'message': 'Error occured' });
 			}
 			response.status(200).json(result.rows);		
 		})		

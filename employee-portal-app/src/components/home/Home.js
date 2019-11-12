@@ -8,7 +8,9 @@ import MyProfile from '../myProfile/myProfile';
 import SearchEmployees from '../employees/employees';
 import MyIssues from '../myIssues/myIssues';
 import RaiseIssue from '../raiseIssue/raiseIssue';
-
+import Caffene from './caffene.png';
+import Fatso from './fat-emp.png';
+import Logo from './logo.png';
 import './Home.css';
 
 class Home extends Component{
@@ -81,16 +83,17 @@ class Home extends Component{
           <div className = "header">
 
             <div id="header-greet"><span className="col-hello">Hello,</span> {" " + this.state.user.firstName + " " + this.state.user.lastName}</div>
+            <img className="cmp-logo" src={Logo}></img>
             <button style = {{width: "100px", height:"50px"}} className="submit-btn-retro-sml" onClick={this.handleLogOut}>Log Out</button>
           </div>
           <div className="header-tabs">
             <div className="tab-btn-retro selected-tab" id="tab-1" onClick={this.changeTab}>Home</div>
-            <div className="tab-btn-retro" id="tab-2" onClick={this.changeTab}>My Issues</div>
+            <div className="tab-btn-retro" id="tab-2" onClick={this.changeTab}>Issues</div>
             <div className="tab-btn-retro" id="tab-3" onClick={this.changeTab}>Employees</div>
             <div className="tab-btn-retro" id="tab-4" onClick={this.changeTab}>Notices</div>
             <div className="tab-btn-retro" id="tab-5" onClick={this.changeTab}>My Profile</div>
           </div>
-
+          
           <div className="main-page">
             {
               this.state.selectedTab === 1 &&
@@ -102,36 +105,37 @@ class Home extends Component{
                     Issues
                     </div>
                     <br></br>
-                    You can post your issues here and like a responsible and cool organisation that we are, we will take care of you! <br></br>
-                    Issues may be anything ranging from water bottle to medicine. HR issues to counselling sessions. Extra chilled AC to annoying co-worker.
-                    You can post just about anything that bothers you.<br></br>
-                    Your issues are automatically picked up by our super hard-working admins. You can also track the progress of your issues.
+                    You can post your issues here and like a responsible and cool organisation that we are, we will take care of you! <br></br><br></br>
+                    >>Issues may be anything ranging from water bottle to medicine. HR issues to counselling sessions. Extra chilled AC to annoying co-worker.<br></br><br></br>
+                    >>You can post just about anything that bothers you.<br></br><br></br>
+                    >>Your issues are automatically picked up by our super hard-working admins. You can also track the progress of your issues.
                   </div>
                   <div className="info-card">
                   <div className="info-title">
                     Employees
                   </div>
                     <br></br>
-                    Need to find some colleague but all you know about them is their department or first name or just email? <br></br> Don't worry, find them in Employees section.
-                    You will be able to send message right from here in the future.
+                    Need to find some colleague but all you know about them is their department or first name or just email? <br></br><br></br> >>Don't worry, find them in Employees section.
+                    <br></br><br></br> >>You will be able to send message right from here in the future.
                   </div>
                   <div className="info-card">
                   <div className="info-title">
                     Notices
                   </div>
                     <br></br>
-                    Ever missed some important announcement or a notice regarding the celebrations in the cafetaria. <br></br> We have developed a notice board where you can find all the
-                    important information posted from time to time. <br></br> This information ranges from company growth to fun activities. Jokes from the CEO to client stories. 
-                    This is the playground of our leaders.
+                    Ever missed some important announcement or a notice regarding the celebrations in the cafetaria? <br></br><br></br> >>We have developed a notice board where you can find all the
+                    important information posted from time to time. <br></br><br></br> >>This information ranges from company growth statistics to fun activities. <br></br><br></br> >>Jokes from the CEO to client stories. 
+                    <br></br><br></br>>>Treat it as an internal newspaper of the organization.
                   </div>
                   <div className="info-card">
                   <div className="info-title">
                     My Profile
                   </div>
                     <br></br>
-                    You can now edit your personal details as many times as you want. No need to contact HR department for typos in your information. You can now also change your password!
+                    >>You can now edit your personal details as many times as you want. <br></br><br></br> >>No need to contact HR department for typos in your information. How cool is that? <br></br> <br></br> >>You can also change your password!
                   </div>
-
+                  <img className="fat-emp" src={Fatso}></img>
+                  <img className="caffene-emp" src={Caffene}></img>
                 </div>
               )
             }
@@ -172,7 +176,6 @@ class Home extends Component{
               )
             }
           </div>
-
 				</div>
 
 			)

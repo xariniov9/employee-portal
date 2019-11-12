@@ -213,7 +213,6 @@ class MyIssues extends Component{
                   </div>
                    <div>
                       <button className="submit-btn-retro-sml" onClick={this.onUpdateIssue}>Update</button>
-                      <button className="submit-btn-retro-sml" onClick={this.handleDelete}>Delete</button>
                     </div>
                     <hr></hr>
                   <div className="MainContentCardBody scrollableArea">
