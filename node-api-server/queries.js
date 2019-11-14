@@ -117,10 +117,12 @@ const searchEmployees = (request, response) => {
 }
 
 const getIssueHistoryByIssueId = (request, response) => {
-	const queryText = `SELECT DISTINCT IH.*, COALESCE(E.FirstName || ' ' || E.LastName, 'NONE') AS AssignedToName
+	const queryText = `SELECT DISTINCT IH.*,  COALESCE(EE.FirstName || ' ' || EE.LastName, 'NONE') AS ModifiedByName, COALESCE(E.FirstName || ' ' || E.LastName, 'NONE') AS AssignedToName
 	   FROM IssueHistories IH
 	   LEFT JOIN Employees E
-	         ON  IH.AssignedTo = E.EmployeeId
+			 ON  IH.AssignedTo = E.EmployeeId
+		INNER JOIN EMPLOYEES EE
+			ON IH.ModifiedBy = EE.EmployeeId
 	   WHERE IssueId = $1
 	   ORDER BY ModifiedOn DESC, IssueHistoryId;`
 	   console.log(request.userauth);
@@ -251,11 +253,36 @@ const getAllIssuesByEmployeeId = (request, response) => {
 	})	
 }
 
+const updateIssueByAdmin = (request, response) => {
+	console.log("Issue update (Admin) by " + request.userauth.employeeId);
+	const queryText = `INSERT INTO IssueHistories(IssueId, Comments, ModifiedBy, ModifiedOn, AssignedTo, Status) 
+						VALUES($1, $2, $3, current_timestamp, $4, $5)`;
+	pool.query(queryText, [request.body.IssueId, request.body.Comments, request.userauth.employeeId, request.body.AssignedTo, request.body.Status], (err, res)=> {
+		if(err) {
+			console.log(err);
+			return response.status(400).send({ 'message': 'Error occured' });
+		}
+		return response.status(200).send({"updated issue": true});
+	})
+
+}
+
 const getAllDepartments = (request, response) => {
 	const queryText = 'SELECT * from Departments';
 	pool.query(queryText, [], (err, res) => {
 		if(err) {
-			return res.status(400).send({ 'message': 'Error occured' });
+			return response.status(400).send({ 'message': 'Error occured' });
+		}
+		response.status(200).json(res.rows);
+	})
+}
+
+const getAllAdmins = (request, response) => {
+	const queryText = 'SELECT Employees.EmployeeId, FirstName, LastName from Employees INNER JOIN Users ON Users.employeeid = Employees.employeeid WHERE Users.IsAdmin=true';
+	pool.query(queryText, [], (err, res) => {
+		if(err) {
+			console.log(err);
+			return response.status(400).send({ 'message': 'Error occured' });
 		}
 		response.status(200).json(res.rows);
 	})
@@ -408,6 +435,15 @@ const updateProfile = (request, response) => {
   })
 }
 
+getEmployeeByEmployeeId = (request, response) => {
+	const queryText = 'SELECT FirstName, LastName from Employees WHERE EmployeeId = $1';
+	pool.query(queryText, [request.body.EmployeeId], (err, res) => {
+		if(err) {
+			return response.status(400).send({ 'message': 'Error occured' });
+		}
+		response.status(200).json(res.rows);
+	})
+}
 
 module.exports = {
   createUser,
@@ -424,5 +460,8 @@ module.exports = {
   deleteNotice,
   updateNotice,
   updateProfile,
-  updateMyIssue
+  updateMyIssue,
+  updateIssueByAdmin,
+  getAllAdmins,
+  getEmployeeByEmployeeId
 }

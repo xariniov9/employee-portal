@@ -42,6 +42,9 @@ app.post('/api/deleteNotice', Auth.verifyAdminToken, db.deleteNotice);
 app.post('/api/updateProfile', Auth.verifyToken, db.updateProfile);
 app.post('/api/updateNotice', Auth.verifyAdminToken, db.updateNotice);
 app.post('/api/updateMyIssue', Auth.verifyToken, db.updateMyIssue);
+app.post('/api/updateIssueByAdmin', Auth.verifyAdminToken, db.updateIssueByAdmin);
+app.post('/api/getAllAdmins', Auth.verifyAdminToken, db.getAllAdmins);
+app.post('/api/getEmployeeByEmployeeId',Auth.verifyToken, db.getEmployeeByEmployeeId);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)

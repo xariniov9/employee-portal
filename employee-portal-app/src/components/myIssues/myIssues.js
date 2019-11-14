@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Modal from 'react-responsive-modal';
-
+import IssueAdmin from '../issueAdmin/IssueAdmin';
 class MyIssues extends Component{
   constructor(props) {
     super(props);
     this.state = {
+      admins: [],
       issues: [],
       selectedIssueHistory: [],
       user: {},
@@ -16,6 +17,15 @@ class MyIssues extends Component{
       priorities : [{display: "NORMAL", value: 1},
                       {display: "URGENT", value: 2},
                       {display: "IMMEDIATE", value: 3}
+        ],
+      isAdminUpdateMode: false,
+      toUpdateIssue: {},
+      Comments: "",
+      AssignedTo: "",
+      Status: "",
+      status : [{display: "OPEN", value: 1},
+                      {display: "WIP", value: 2},
+                      {display: "CLOSED", value: 3}
         ]
     };
     this.onCloseModal = this.onCloseModal.bind(this);
@@ -29,6 +39,12 @@ class MyIssues extends Component{
     this.cancelUpdate = this.cancelUpdate.bind(this);
     this.getStatus = this.getStatus.bind(this);
     this.getPriority = this.getPriority.bind(this);
+    this.onOpenUpdateAdmin = this.onOpenUpdateAdmin.bind(this);
+    this.onCloseAdminUpdate = this.onCloseAdminUpdate.bind(this);
+    this.validateFieldsAndUpdateAdminIssue = this.validateFieldsAndUpdateAdminIssue.bind(this);
+    this.handleAdminUpdateSubmit  = this.handleAdminUpdateSubmit.bind(this);
+    this.handleChangeAdminUpdate = this.handleChangeAdminUpdate.bind(this);
+    this.getAdmins = this.getAdmins.bind(this);
   }
 
   componentDidMount() {
@@ -36,7 +52,29 @@ class MyIssues extends Component{
     const _this = this;
     setTimeout(function() {
       _this.getMyIssues();
+      _this.getAdmins();
     })
+  }
+  getAdmins() {
+    if(this.state.user.isAdmin) {
+      const token = sessionStorage.jwtToken;
+      const _this = this;
+      if(!!token) {
+        const values = {
+          token: token
+        } 
+        axios.post(`http://localhost:3001/api/getAllAdmins`, values).then((result) => {
+        if (result.response && result.response.status !== 200) {
+          console.log("error in getting issues");
+        } else {
+            console.log(result.data);
+            _this.setState({admins: result.data});
+          }
+        }).catch(err => {
+            console.log(err)
+        });
+      } 
+    }
   }
   onOpenModal(event,data) {
     this.setState({selectedIssue: data});
@@ -82,7 +120,7 @@ class MyIssues extends Component{
       console.log(this.state.user);
       const values = {
         token: token,
-        EmployeeId: this.state.user.employeeId
+        EmployeeId: (this.state.user.isAdmin ? 0 : this.state.user.employeeId)
       } 
       axios.post(`http://localhost:3001/api/getAllIssuesByEmployeeId`, values).then((result) => {
       if (result.response && result.response.status !== 200) {
@@ -102,6 +140,10 @@ class MyIssues extends Component{
     this.setState({ formData: formData });
   }
 
+  handleChangeAdminUpdate(evt) {
+    this.setState({ [evt.target.name]: evt.target.value });
+
+  }
   handleUpdate(event) {
     const token = sessionStorage.jwtToken;
     const _this = this;
@@ -164,28 +206,81 @@ class MyIssues extends Component{
     if(status === 3) return "IMMEDIATE";
     return "NORMAL";
   }
+  onOpenUpdateAdmin(e, i) {
+    this.setState({isAdminUpdateMode: true, toUpdateIssue: i});
+  }
+  onCloseAdminUpdate() {
+    this.setState({isAdminUpdateMode: false});
+  }
+
+  validateFieldsAndUpdateAdminIssue = (event, values) => {
+    const _this = this;
+    const payload = axios.post(`http://localhost:3001/api/updateIssueByAdmin`, values)
+        .then((result) => {
+                if (result.response && result.response.status !== 200) {
+                  console.log("error in auth");
+                } else {
+                  this.setState({Comments: "",
+                        AssignedTo:"",
+                        Status: "",
+                        validationError: "", isAdminUpdateMode: false});
+                  console.log("Issue Updated by Admin")
+      }
+    }).catch(err => {
+        console.log(err)
+    });
+    event.preventDefault();
+};
+
+
+  handleAdminUpdateSubmit(event) {
+    const token = sessionStorage.jwtToken;
+    console.log(this.state.toUpdateIssue);
+   this.validateFieldsAndUpdateAdminIssue(event, {token: token, Comments: this.state.Comments, IssueId: this.state.toUpdateIssue.issueid, Status: this.state.Status, AssignedTo: this.state.AssignedTo});
+   event.preventDefault();
+ }
+
+  getEmployeeByEmployeeId(eid) {
+    const token = sessionStorage.jwtToken;
+    axios.post(`http://localhost:3001/api/getEmployeeByEmployeeId`, { token: token, 
+                                                            EmployeeId: eid}).then((result) => {
+      if (result.response && result.response.status !== 200) {
+        console.log("error in getting employee");
+      } else {
+            return result.data[0];
+        }
+    });
+  }
   render() {
     var _this = this;
+    var issueTitle = (this.state.user.isAdmin ? "All Issues" : "My Issues");
+    var issueSubtitle = (this.state.user.isAdmin === false ? "Issues Raised By Me" : "Manage Issues");
 		return (
         <div className="LBmaincard">
           <div className="LBContentCard ContentCardNotice">
             <div className = "MainContentCardTitle">
-                  <div className="titleText lbTitle">My Issues</div>
-                  <div className = "lighterText1">Issues Raised By Me</div>
+                  <div className="titleText lbTitle">{issueTitle}</div>
+                  <div className = "lighterText1">{issueSubtitle}</div>
             </div>
             <hr></hr>
             <div className="MainContentCardBody scrollableArea">
               <table style={{width:"100%"}}>
               <tbody className="small-light">
-                <tr className="row-header"><td>Title</td><td>Status</td><td>Priority</td><td>Assigned To</td></tr>
+                <tr className="row-header"><td>Title</td><td></td><td>Status</td><td>Priority</td><td>Assigned To</td></tr>
                 {
                   
                   this.state.issues.map(function (i) {
                     return (<tr>
                       <td key={i.issueid.toString()} className="bolder hvr"><a onClick = {(e) => _this.onOpenModal(e, i)}>{i.title}</a></td>
+                      <td><div className="modal-header meta-data"> By <strong>{" " + i.postedbyname + " "}</strong></div></td>
+                      
                       <td>{_this.getStatus(i.status)}</td>
                       <td>{_this.getPriority(i.priority)}</td>
                       <td>{i.assignedtoname}</td>
+                      {
+                        _this.state.user.isAdmin &&
+                        <td><button onClick={(e) => _this.onOpenUpdateAdmin(e, i)}>Resolve</button></td>
+                      }
                     </tr>);
                   })
                 }
@@ -212,7 +307,10 @@ class MyIssues extends Component{
                     </div>
                   </div>
                    <div>
-                      <button className="submit-btn-retro-sml" onClick={this.onUpdateIssue}>Update</button>
+                     {
+                        (this.state.user.employeeId == this.state.selectedIssue.postedby)  && <button className="submit-btn-retro-sml" onClick={this.onUpdateIssue}>Update</button>
+                     }
+                      
                     </div>
                     <hr></hr>
                   <div className="MainContentCardBody scrollableArea">
@@ -230,7 +328,7 @@ class MyIssues extends Component{
                       {
                         this.state.selectedIssueHistory.map(function (i) {
                           return (<tr>
-                            <td>{i.modifiedby}</td>
+                            <td>{i.modifiedbyname}</td>
                             <td>{_this.formatDate(i.modifiedon)}</td>
                             <td>{i.assignedtoname}</td>
                             <td>{_this.getStatus(i.status)}</td>
@@ -284,6 +382,57 @@ class MyIssues extends Component{
             }
             
           </Modal>
+          <Modal className="roundedBorder" open={this.state.isAdminUpdateMode} onClose={this.onCloseAdminUpdate} closeIconSize={14} center>
+      <div className="LBmaincard">
+          <div className="LBContentCard">
+          <div className = "MainContentCardTitle">
+            <div className="titleText lbTitle">Resolve Issue</div>
+            <div className = "lighterText1">Fill Details</div>
+          </div>
+          <hr></hr>
+        
+            <div className = "FormCardBody">
+                <form onSubmit={this.handleAdminUpdateSubmit}>
+                    <label>
+                    <div className="form-field"> 
+                      Comments : 
+                      <input type="text" name="Comments" value={this.state.Comments} onChange={this.handleChangeAdminUpdate}/>
+                    
+                    </div>
+                    </label>
+
+                    
+                    <label>
+                    <div className="form-field"> 
+                    Assign To : 
+                    <select value={this.state.AssignedTo} 
+                    onChange={(e) => this.setState({AssignedTo: e.target.value, validationError: e.target.value === "" ? "Select Admin" : ""})}>
+                        {this.state.admins.map((topic) => <option key={topic.employeeid} value={topic.employeeid}>{topic.firstname + " " + topic.lastname}</option>)}
+                    </select>
+                    </div>
+                    </label>
+
+
+                    <label>
+                    <div className="form-field"> 
+                    Status : 
+                    <select value={this.state.Status} 
+                    onChange={(e) => this.setState({Status: e.target.value, validationError: e.target.value === "" ? "Select Status" : ""})}>
+                        {this.state.status.map((topic) => <option key={topic.value} value={topic.value}>{topic.display}</option>)}
+                    </select>
+                    </div>
+                    </label>
+
+                    <br></br>
+
+                    <input className="submit-btn-retro" type="submit" value="Submit" />
+
+                </form>
+            </div>
+        
+        </div>
+        </div>
+        </Modal>
         </div>
       )
   }
