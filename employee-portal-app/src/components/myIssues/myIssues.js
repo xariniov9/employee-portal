@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Modal from 'react-responsive-modal';
-import IssueAdmin from '../issueAdmin/IssueAdmin';
+
 class MyIssues extends Component{
   constructor(props) {
     super(props);
